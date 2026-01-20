@@ -1,0 +1,67 @@
+-- 1. SETUP ENUMS & EXTENSIONS
+CREATE TYPE order_status AS ENUM ('pending', 'processing', 'shipped', 'delivered', 'cancelled', 'returned');
+
+-- 2. CATEGORIES
+CREATE TABLE categories (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    slug VARCHAR(120) UNIQUE NOT NULL,
+    parent_id INTEGER REFERENCES categories(id),
+    is_active BOOLEAN DEFAULT TRUE
+);
+
+-- 3. PRODUCTS
+CREATE TABLE products (
+    id SERIAL PRIMARY KEY,
+    category_id INTEGER REFERENCES categories(id) ON DELETE SET NULL,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    base_price DECIMAL(12, 2) NOT NULL,
+    specifications JSONB DEFAULT '{}', 
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    is_active BOOLEAN DEFAULT TRUE
+);
+
+-- 4. PRODUCT VARIANTS
+CREATE TABLE product_variants (
+    id SERIAL PRIMARY KEY,
+    product_id INTEGER REFERENCES products(id) ON DELETE CASCADE,
+    sku VARCHAR(100) UNIQUE NOT NULL,
+    attributes JSONB NOT NULL, 
+    price_override DECIMAL(12, 2),
+    stock_quantity INTEGER DEFAULT 0 CHECK (stock_quantity >= 0),
+    is_active BOOLEAN DEFAULT TRUE
+);
+
+-- 5. USERS
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    full_name VARCHAR(255),
+    address TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 6. ORDERS
+CREATE TABLE orders (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    total_amount DECIMAL(12, 2) NOT NULL,
+    status order_status DEFAULT 'pending',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 7. ORDER ITEMS
+CREATE TABLE order_items (
+    id SERIAL PRIMARY KEY,
+    order_id INTEGER REFERENCES orders(id) ON DELETE CASCADE,
+    variant_id INTEGER REFERENCES product_variants(id),
+    quantity INTEGER NOT NULL CHECK (quantity > 0),
+    price_at_purchase DECIMAL(12, 2) NOT NULL
+);
+
+-- 8. INDEXES FOR PERFORMANCE
+CREATE INDEX idx_products_spec ON products USING GIN (specifications);
+CREATE INDEX idx_variants_attr ON product_variants USING GIN (attributes);
+CREATE INDEX idx_orders_user_id ON orders(user_id);
