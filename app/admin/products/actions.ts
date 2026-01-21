@@ -88,6 +88,7 @@ export async function createProduct(formData: FormData) {
     try {
         revalidatePath("/admin/products");
         revalidatePath("/shop");
+        revalidatePath("/");
         return { success: true };
     } catch (e: any) {
         console.error(e);
@@ -207,6 +208,7 @@ export async function updateProduct(formData: FormData) {
     try {
         revalidatePath("/admin/products");
         revalidatePath("/shop");
+        revalidatePath("/");
         return { success: true };
     } catch (e: any) {
         console.error(e);
@@ -220,6 +222,7 @@ export async function deleteProduct(formData: FormData) {
         await db.execute({ sql: 'DELETE FROM products WHERE id = ?', args: [id] });
         revalidatePath("/admin/products");
         revalidatePath("/shop");
+        revalidatePath("/");
         return { success: true };
     } catch (e: any) {
         console.error(e);

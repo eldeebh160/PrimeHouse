@@ -13,6 +13,8 @@ export async function addCategory(formData: FormData) {
     try {
         await db.execute({ sql: 'INSERT INTO categories (name, slug, image_url) VALUES (?, ?, ?)', args: [name, slug, imageUrl] });
         revalidatePath("/admin/categories");
+        revalidatePath("/");
+        revalidatePath("/shop");
         return { success: true };
     } catch (e: any) {
         console.error(e);
@@ -38,6 +40,8 @@ export async function updateCategory(formData: FormData) {
             await db.execute({ sql: 'UPDATE categories SET name = ?, slug = ? WHERE id = ?', args: [name, slug, id as string] });
         }
         revalidatePath("/admin/categories");
+        revalidatePath("/");
+        revalidatePath("/shop");
         return { success: true };
     } catch (e: any) {
         console.error(e);
@@ -50,6 +54,8 @@ export async function deleteCategory(formData: FormData) {
     try {
         await db.execute({ sql: 'DELETE FROM categories WHERE id = ?', args: [id as string] });
         revalidatePath("/admin/categories");
+        revalidatePath("/");
+        revalidatePath("/shop");
         return { success: true };
     } catch (e: any) {
         console.error("Failed to delete category:", e);
