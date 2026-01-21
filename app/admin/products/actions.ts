@@ -85,9 +85,14 @@ export async function createProduct(formData: FormData) {
         }
     }
 
-    revalidatePath("/admin/products");
-    revalidatePath("/shop");
-    redirect("/admin/products");
+    try {
+        revalidatePath("/admin/products");
+        revalidatePath("/shop");
+        return { success: true };
+    } catch (e: any) {
+        console.error(e);
+        return { success: false, error: e.message || "Failed to create product." };
+    }
 }
 
 export async function updateProduct(formData: FormData) {
@@ -199,16 +204,27 @@ export async function updateProduct(formData: FormData) {
 
     await db.batch(variantStatements, "write");
 
-    revalidatePath("/admin/products");
-    revalidatePath("/shop");
-    redirect("/admin/products");
+    try {
+        revalidatePath("/admin/products");
+        revalidatePath("/shop");
+        return { success: true };
+    } catch (e: any) {
+        console.error(e);
+        return { success: false, error: e.message || "Failed to update product." };
+    }
 }
 
 export async function deleteProduct(formData: FormData) {
     const id = formData.get("id") as string;
-    await db.execute({ sql: 'DELETE FROM products WHERE id = ?', args: [id] });
-    revalidatePath("/admin/products");
-    revalidatePath("/shop");
+    try {
+        await db.execute({ sql: 'DELETE FROM products WHERE id = ?', args: [id] });
+        revalidatePath("/admin/products");
+        revalidatePath("/shop");
+        return { success: true };
+    } catch (e: any) {
+        console.error(e);
+        return { success: false, error: e.message || "Failed to delete product." };
+    }
 }
 
 export async function bulkImportProducts(data: string) {
