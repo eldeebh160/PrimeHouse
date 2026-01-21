@@ -3,21 +3,17 @@
 import db from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
+import { put } from "@vercel/blob";
 
 export async function saveImage(file: File) {
     if (!file || file.size === 0) return null;
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(new Uint8Array(bytes));
 
-    const filename = `${Date.now()}-${file.name}`;
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-    await mkdir(uploadDir, { recursive: true });
-    const filePath = path.join(uploadDir, filename);
+    // Upload to Vercel Blob
+    const blob = await put(file.name, file, {
+        access: 'public',
+    });
 
-    await writeFile(filePath, buffer);
-    return `/uploads/${filename}`;
+    return blob.url;
 }
 
 export async function createProduct(formData: FormData) {
