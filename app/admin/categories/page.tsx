@@ -1,9 +1,8 @@
 import db from "@/lib/db";
-import { revalidatePath } from "next/cache";
-import { addCategory, deleteCategory } from "./actions";
 import { Trash2, Pencil } from "lucide-react";
 import Link from "next/link";
-import { SubmitButton } from "@/components/admin/SubmitButton";
+import AddCategoryForm from "./AddCategoryForm";
+import DeleteCategoryButton from "./DeleteCategoryButton";
 
 export const dynamic = 'force-dynamic';
 
@@ -15,18 +14,7 @@ export default async function CategoriesPage() {
         <div className="max-w-4xl space-y-8">
             <h1 className="font-heading text-3xl font-bold">Categories</h1>
 
-            {/* Add New */}
-            <div className="bg-background border border-border p-6 rounded-sm">
-                <h2 className="text-sm font-bold uppercase tracking-widest mb-4">Add New Category</h2>
-                <form action={addCategory} className="flex flex-col sm:flex-row gap-4">
-                    <input name="name" required placeholder="Category Name" className="flex-1 bg-secondary border border-border px-4 py-2" />
-                    <div className="flex-1 flex gap-2 items-center">
-                        <label className="text-[10px] uppercase font-bold text-muted-foreground whitespace-nowrap">Image:</label>
-                        <input type="file" name="image" accept="image/*" className="w-full bg-secondary border border-border px-2 py-1 text-xs" />
-                    </div>
-                    <SubmitButton>Add</SubmitButton>
-                </form>
-            </div>
+            <AddCategoryForm />
 
             {/* List */}
             <div className="bg-background border border-border rounded-sm overflow-hidden">
@@ -62,12 +50,7 @@ export default async function CategoriesPage() {
                                         <Link href={`/admin/categories/${cat.id}`} className="p-2 hover:text-black text-muted-foreground transition-colors">
                                             <Pencil size={16} />
                                         </Link>
-                                        <form action={deleteCategory} className="inline-block">
-                                            <input type="hidden" name="id" value={cat.id} />
-                                            <button type="submit" className="p-2 hover:text-red-500 text-muted-foreground transition-colors">
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </form>
+                                        <DeleteCategoryButton id={cat.id} />
                                     </div>
                                 </td>
                             </tr>

@@ -6,8 +6,11 @@ import { Plus, X } from "lucide-react";
 import { updateProduct } from "../actions";
 import Image from "next/image";
 import { SubmitButton } from "@/components/admin/SubmitButton";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function EditProductForm({ product, initialVariants, categories, initialImages }: { product: any, initialVariants: any[], categories: any[], initialImages: any[] }) {
+    const router = useRouter();
     const [variants, setVariants] = useState<{ name: string, value: string, price?: string | number }[]>(initialVariants.map(v => ({ name: v.name, value: v.value, price: v.price || "" })));
 
     // Image State
@@ -45,14 +48,12 @@ export default function EditProductForm({ product, initialVariants, categories, 
 
     // Prepare FormData
     const handleSubmit = async (formData: FormData) => {
-        // Construct the layout map
         const newImagesList = items.filter(item => item.type === 'new') as { type: 'new', file: File }[];
 
         const layout = items.map(item => {
             if (item.type === 'existing') {
                 return { type: 'existing', url: item.url };
             } else {
-                // Find index of this specific file in the newImagesList
                 const index = newImagesList.findIndex(n => n.file === item.file);
                 return { type: 'new', index };
             }
@@ -60,12 +61,18 @@ export default function EditProductForm({ product, initialVariants, categories, 
 
         formData.append('image_order', JSON.stringify(layout));
 
-        // Append actual files
         newImagesList.forEach(item => {
             formData.append('images', item.file);
         });
 
-        await updateProduct(formData);
+        const result = await updateProduct(formData);
+        if (result.success) {
+            toast.success("Product updated successfully");
+            router.push("/admin/products");
+            router.refresh();
+        } else {
+            toast.error(result.error || "Failed to update product");
+        }
     };
 
     return (

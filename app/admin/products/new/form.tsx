@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Plus, X } from "lucide-react";
 import { createProduct } from "../actions";
 import { SubmitButton } from "@/components/admin/SubmitButton";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface Category {
     id: number;
@@ -11,9 +13,21 @@ interface Category {
 }
 
 export default function NewProductForm({ categories }: { categories: Category[] }) {
+    const router = useRouter();
     // Form State
     const [variants, setVariants] = useState<{ name: string, value: string, price?: string | number }[]>([]);
     const [images, setImages] = useState<File[]>([]);
+
+    const handleFormAction = async (formData: FormData) => {
+        const result = await createProduct(formData);
+        if (result.success) {
+            toast.success("Product created successfully");
+            router.push("/admin/products");
+            router.refresh();
+        } else {
+            toast.error(result.error || "Failed to create product");
+        }
+    };
 
     // UI Helpers
     const addVariant = () => setVariants([...variants, { name: "", value: "", price: "" }]);
@@ -31,7 +45,7 @@ export default function NewProductForm({ categories }: { categories: Category[] 
     };
 
     return (
-        <form action={createProduct} className="space-y-8">
+        <form action={handleFormAction} className="space-y-8">
             {/* Basic Info */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
