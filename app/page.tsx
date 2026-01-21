@@ -69,6 +69,9 @@ export default async function Home() {
                     <ShowcaseSlider title="Collections" subtitle="Explore Our Suites">
                         {categories.map((cat) => (
                             <div key={cat.id} className="group relative w-[300px] md:w-[450px] aspect-[4/5] overflow-hidden bg-secondary">
+                                <Link href={`/shop?category=${cat.id}`} className="absolute inset-0 z-30">
+                                    <span className="sr-only">View {cat.name} Collection</span>
+                                </Link>
                                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-all duration-700 z-10" />
                                 {cat.image_url ? (
                                     <Image
@@ -84,12 +87,9 @@ export default async function Home() {
                                 )}
                                 <div className="absolute bottom-10 left-10 z-20 space-y-3 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
                                     <h3 className="text-3xl font-bold text-white tracking-tight">{cat.name}</h3>
-                                    <Link
-                                        href={`/shop?category=${cat.id}`}
-                                        className="inline-block text-white border-b border-white pb-1 font-bold text-[10px] uppercase tracking-widest hover:border-transparent transition-all"
-                                    >
+                                    <div className="inline-block text-white border-b border-white pb-1 font-bold text-[10px] uppercase tracking-widest hover:border-transparent transition-all">
                                         Explore Collection
-                                    </Link>
+                                    </div>
                                 </div>
                             </div>
                         ))}
