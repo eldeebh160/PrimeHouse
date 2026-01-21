@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { addCategory, deleteCategory } from "./actions";
 import { Trash2, Pencil } from "lucide-react";
 import Link from "next/link";
+import { SubmitButton } from "@/components/admin/SubmitButton";
 
 export const dynamic = 'force-dynamic';
 
@@ -23,9 +24,7 @@ export default async function CategoriesPage() {
                         <label className="text-[10px] uppercase font-bold text-muted-foreground whitespace-nowrap">Image:</label>
                         <input type="file" name="image" accept="image/*" className="w-full bg-secondary border border-border px-2 py-1 text-xs" />
                     </div>
-                    <button type="submit" className="bg-black text-white px-6 py-2 uppercase font-bold text-xs tracking-widest">
-                        Add
-                    </button>
+                    <SubmitButton>Add</SubmitButton>
                 </form>
             </div>
 

@@ -5,6 +5,7 @@ import { Reorder } from "framer-motion";
 import { Plus, X } from "lucide-react";
 import { updateProduct } from "../actions";
 import Image from "next/image";
+import { SubmitButton } from "@/components/admin/SubmitButton";
 
 export default function EditProductForm({ product, initialVariants, categories, initialImages }: { product: any, initialVariants: any[], categories: any[], initialImages: any[] }) {
     const [variants, setVariants] = useState<{ name: string, value: string, price?: string | number }[]>(initialVariants.map(v => ({ name: v.name, value: v.value, price: v.price || "" })));
@@ -203,9 +204,9 @@ export default function EditProductForm({ product, initialVariants, categories, 
                 <input type="hidden" name="variants_json" value={JSON.stringify(variants)} />
             </div>
 
-            <button type="submit" className="w-full bg-black text-white h-12 font-bold uppercase tracking-widest hover:bg-gray-800">
+            <SubmitButton className="w-full bg-black text-white h-12 font-bold uppercase tracking-widest hover:bg-gray-800">
                 Update Product
-            </button>
+            </SubmitButton>
         </form>
     );
 }

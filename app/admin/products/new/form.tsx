@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Plus, X } from "lucide-react";
 import { createProduct } from "../actions";
+import { SubmitButton } from "@/components/admin/SubmitButton";
 
 interface Category {
     id: number;
@@ -146,9 +147,9 @@ export default function NewProductForm({ categories }: { categories: Category[] 
                 <input type="hidden" name="variants_json" value={JSON.stringify(variants)} />
             </div>
 
-            <button type="submit" className="w-full bg-black text-white h-12 font-bold uppercase tracking-widest hover:bg-gray-800">
+            <SubmitButton className="w-full bg-black text-white h-12 font-bold uppercase tracking-widest hover:bg-gray-800">
                 Create Product
-            </button>
+            </SubmitButton>
         </form>
     );
 }

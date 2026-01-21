@@ -48,7 +48,7 @@ export function SingleItemCarousel({ children, title, subtitle }: CarouselProps)
                 </div>
             )}
 
-            <div className="relative w-full max-w-4xl mx-auto aspect-[4/5] md:aspect-[3/4]">
+            <div className="relative w-full max-w-6xl mx-auto aspect-[4/5] md:aspect-[3/4]">
                 {/* Navigation Buttons */}
                 <button
                     className="absolute top-1/2 -left-16 transform -translate-y-1/2 z-10 p-3 bg-white border border-border rounded-full hover:bg-black hover:text-white transition-all shadow-lg md:flex hidden"

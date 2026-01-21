@@ -8,12 +8,20 @@ import { put } from "@vercel/blob";
 export async function saveImage(file: File) {
     if (!file || file.size === 0) return null;
 
-    // Upload to Vercel Blob
-    const blob = await put(file.name, file, {
-        access: 'public',
-    });
+    try {
+        if (!process.env.BLOB_READ_WRITE_TOKEN) {
+            throw new Error("BLOB_READ_WRITE_TOKEN is missing. Please check Vercel Storage settings.");
+        }
 
-    return blob.url;
+        const blob = await put(file.name, file, {
+            access: 'public',
+        });
+
+        return blob.url;
+    } catch (error: any) {
+        console.error("Vercel Blob Upload Error:", error);
+        throw new Error(`Image upload failed: ${error.message}`);
+    }
 }
 
 export async function createProduct(formData: FormData) {
