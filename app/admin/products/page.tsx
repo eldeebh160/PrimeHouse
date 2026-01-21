@@ -1,8 +1,8 @@
 import db from "@/lib/db";
 import Link from "next/link";
-import { Plus, Pencil, Trash2 } from "lucide-react";
-import { deleteProduct } from "./actions";
+import { Plus, Pencil } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
+import DeleteProductButton from "./DeleteProductButton";
 
 export const dynamic = 'force-dynamic';
 
@@ -64,12 +64,7 @@ export default async function ProductsListPage() {
                                         <Link href={`/admin/products/${product.id}`} className="p-2 hover:text-black text-muted-foreground transition-colors">
                                             <Pencil size={16} />
                                         </Link>
-                                        <form action={deleteProduct}>
-                                            <input type="hidden" name="id" value={product.id} />
-                                            <button type="submit" className="p-2 hover:text-red-500 text-muted-foreground transition-colors">
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </form>
+                                        <DeleteProductButton id={product.id} />
                                     </div>
                                 </td>
                             </tr>
