@@ -122,30 +122,44 @@ export default async function ShopPage({ searchParams }: { searchParams: { categ
                                     All Products
                                 </Link>
                             </li>
-                            {parentCategories.map(parent => (
-                                <li key={parent.id} className="space-y-2">
-                                    <Link
-                                        href={`/shop?category=${parent.id}${selectedSort !== 'newest' ? `&sort=${selectedSort}` : ''}`}
-                                        className={`transition-colors ${selectedCategoryId === String(parent.id) ? "text-foreground font-bold underline underline-offset-4" : "text-muted-foreground hover:text-foreground"}`}
-                                    >
-                                        {parent.name}
-                                    </Link>
-                                    {subCategoriesMap[parent.id] && (
-                                        <ul className="pl-4 space-y-2 border-l border-border/50 ml-1 mt-2">
-                                            {subCategoriesMap[parent.id].map(sub => (
-                                                <li key={sub.id}>
-                                                    <Link
-                                                        href={`/shop?category=${sub.id}${selectedSort !== 'newest' ? `&sort=${selectedSort}` : ''}`}
-                                                        className={`text-xs transition-colors ${selectedCategoryId === String(sub.id) ? "text-foreground font-bold underline underline-offset-2" : "text-muted-foreground hover:text-foreground"}`}
-                                                    >
-                                                        {sub.name}
-                                                    </Link>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    )}
-                                </li>
-                            ))}
+                            {parentCategories.map(parent => {
+                                const isSubActive = subCategoriesMap[parent.id]?.some(sub => String(sub.id) === selectedCategoryId);
+                                const isParentActive = selectedCategoryId === String(parent.id);
+                                const isExpanded = isParentActive || isSubActive;
+
+                                return (
+                                    <li key={parent.id} className="space-y-2">
+                                        <div className="flex items-center justify-between group">
+                                            <Link
+                                                href={`/shop?category=${parent.id}${selectedSort !== 'newest' ? `&sort=${selectedSort}` : ''}`}
+                                                className={`transition-colors flex-1 ${isParentActive ? "text-foreground font-bold" : "text-muted-foreground hover:text-foreground"}`}
+                                            >
+                                                {parent.name}
+                                            </Link>
+                                            {subCategoriesMap[parent.id] && (
+                                                <span className={`text-[10px] transition-transform duration-300 ${isExpanded ? "rotate-90 opacity-100" : "opacity-30 group-hover:opacity-100"}`}>
+                                                    {isExpanded ? '−' : '+'}
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        {isExpanded && subCategoriesMap[parent.id] && (
+                                            <ul className="pl-4 space-y-2 border-l border-border/50 ml-1 mt-2 animate-in fade-in slide-in-from-left-2 duration-300">
+                                                {subCategoriesMap[parent.id].map(sub => (
+                                                    <li key={sub.id}>
+                                                        <Link
+                                                            href={`/shop?category=${sub.id}${selectedSort !== 'newest' ? `&sort=${selectedSort}` : ''}`}
+                                                            className={`text-xs block transition-colors ${selectedCategoryId === String(sub.id) ? "text-foreground font-bold" : "text-muted-foreground hover:text-foreground"}`}
+                                                        >
+                                                            {sub.name}
+                                                        </Link>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                    </li>
+                                );
+                            })}
                         </ul>
                     </div>
                 </aside>
