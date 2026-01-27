@@ -38,9 +38,18 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 }
 
 export default async function ProductPage({ params }: { params: { id: string } }) {
-    // Fetch Product
-    const result = await db.execute({ sql: 'SELECT * FROM products WHERE id = ?', args: [params.id] });
-    const product = result.rows[0] as unknown as Product | undefined;
+    // Fetch Product with category info
+    const result = await db.execute({
+        sql: `
+            SELECT p.*, c.name as category_name, c.parent_id, cp.name as parent_category_name
+            FROM products p
+            LEFT JOIN categories c ON p.category_id = c.id
+            LEFT JOIN categories cp ON c.parent_id = cp.id
+            WHERE p.id = ?
+        `,
+        args: [params.id]
+    });
+    const product = result.rows[0] as any;
 
     if (!product) {
         notFound();
@@ -56,10 +65,22 @@ export default async function ProductPage({ params }: { params: { id: string } }
     return (
         <div className="container mx-auto px-4 py-8 sm:px-8 sm:py-16">
             {/* Breadcrumb */}
-            <div className="mb-8 pl-1">
-                <Link href="/shop" className="text-sm text-muted-foreground hover:text-black transition-colors uppercase tracking-wider">
-                    ← Back to Shop
+            <div className="mb-8 pl-1 flex items-center gap-2 text-xs uppercase tracking-widest text-muted-foreground">
+                <Link href="/shop" className="hover:text-black transition-colors">Shop</Link>
+                <span>/</span>
+                {product.parent_category_name && (
+                    <>
+                        <Link href={`/shop?category=${product.parent_id}`} className="hover:text-black transition-colors">
+                            {product.parent_category_name}
+                        </Link>
+                        <span>/</span>
+                    </>
+                )}
+                <Link href={`/shop?category=${product.category_id}`} className="hover:text-black transition-colors">
+                    {product.category_name}
                 </Link>
+                <span className="hidden sm:inline">/</span>
+                <span className="text-black font-bold hidden sm:inline">{product.name}</span>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">

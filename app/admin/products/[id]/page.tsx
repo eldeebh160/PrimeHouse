@@ -11,7 +11,12 @@ export default async function EditProductPage({ params }: { params: { id: string
     const variantsResult = await db.execute({ sql: 'SELECT * FROM product_variants WHERE product_id = ?', args: [params.id] });
     const variants = variantsResult.rows as any[];
 
-    const categoriesResult = await db.execute('SELECT * FROM categories ORDER BY name');
+    const categoriesResult = await db.execute(`
+        SELECT c1.*, c2.name as parent_name 
+        FROM categories c1 
+        LEFT JOIN categories c2 ON c1.parent_id = c2.id 
+        ORDER BY COALESCE(c2.name, c1.name), c1.name
+    `);
     const categories = categoriesResult.rows as any[];
 
     const imagesResult = await db.execute({ sql: 'SELECT * FROM product_images WHERE product_id = ?', args: [params.id] });

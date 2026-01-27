@@ -72,16 +72,22 @@ export function ShowcaseSlider({ children, title, subtitle }: SliderProps) {
                 </div>
             )}
 
-            <div
-                ref={scrollRef}
-                className="flex gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-4 px-4 md:px-0"
-                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-            >
-                {children.map((child, index) => (
-                    <div key={index} className="flex-none snap-start first:pl-0 last:pr-4 md:last:pr-0">
-                        {child}
-                    </div>
-                ))}
+            <div className="relative group">
+                <div
+                    ref={scrollRef}
+                    className="flex gap-4 md:gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-8 px-6 md:px-0"
+                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                >
+                    {children.map((child, index) => (
+                        <div key={index} className="flex-none snap-start first:pl-0 last:pr-6 md:last:pr-0">
+                            {child}
+                        </div>
+                    ))}
+                </div>
+
+                {/* Scroll Indication Gradients for Mobile */}
+                <div className="absolute top-0 right-0 h-full w-12 bg-gradient-to-l from-white to-transparent md:hidden pointer-events-none opacity-50" />
+                <div className="absolute top-0 left-0 h-full w-12 bg-gradient-to-r from-white to-transparent md:hidden pointer-events-none opacity-50" />
             </div>
         </div>
     );

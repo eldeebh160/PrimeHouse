@@ -8,9 +8,10 @@ export const dynamic = 'force-dynamic';
 
 export default async function ProductsListPage() {
     const result = await db.execute(`
-        SELECT p.*, c.name as category_name 
+        SELECT p.*, c.name as category_name, cp.name as parent_category_name
         FROM products p 
         LEFT JOIN categories c ON p.category_id = c.id 
+        LEFT JOIN categories cp ON c.parent_id = cp.id
         ORDER BY p.id DESC
     `);
     const products = result.rows as any[];
@@ -48,7 +49,12 @@ export default async function ProductsListPage() {
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 font-bold">{product.name}</td>
-                                <td className="px-6 py-4 text-muted-foreground">{product.category_name || 'Uncategorized'}</td>
+                                <td className="px-6 py-4 text-muted-foreground text-xs">
+                                    {product.parent_category_name ? (
+                                        <span className="opacity-50">{product.parent_category_name} &gt; </span>
+                                    ) : null}
+                                    <span className="font-medium text-foreground">{product.category_name || 'Uncategorized'}</span>
+                                </td>
                                 <td className="px-6 py-4 font-mono">
                                     {product.sale_price ? (
                                         <div className="flex flex-col">

@@ -4,7 +4,12 @@ import NewProductForm from "./form";
 export const dynamic = 'force-dynamic';
 
 export default async function NewProductPage() {
-    const result = await db.execute('SELECT * FROM categories ORDER BY name');
+    const result = await db.execute(`
+        SELECT c1.*, c2.name as parent_name 
+        FROM categories c1 
+        LEFT JOIN categories c2 ON c1.parent_id = c2.id 
+        ORDER BY COALESCE(c2.name, c1.name), c1.name
+    `);
     const categories = result.rows as any[];
 
     return (

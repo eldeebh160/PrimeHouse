@@ -9,6 +9,7 @@ interface Product {
     sale_price: number | null;
     image_url: string;
     category_name: string;
+    parent_category_name?: string | null;
 }
 
 export function ProductCard({ product }: { product: Product }) {
@@ -38,7 +39,12 @@ export function ProductCard({ product }: { product: Product }) {
             <div className="flex justify-between items-start pt-2">
                 <div>
                     <h3 className="font-heading text-lg font-medium leading-none tracking-tight">{product.name}</h3>
-                    <p className="text-xs text-muted-foreground uppercase tracking-widest mt-1.5">{product.category_name}</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-2 font-bold">
+                        {product.parent_category_name && (
+                            <span className="opacity-50">{product.parent_category_name} / </span>
+                        )}
+                        {product.category_name}
+                    </p>
                 </div>
                 <div className="text-right">
                     {product.sale_price ? (

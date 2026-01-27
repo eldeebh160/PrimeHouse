@@ -7,14 +7,19 @@ import DeleteCategoryButton from "./DeleteCategoryButton";
 export const dynamic = 'force-dynamic';
 
 export default async function CategoriesPage() {
-    const result = await db.execute('SELECT * FROM categories ORDER BY name');
+    const result = await db.execute(`
+        SELECT c1.*, c2.name as parent_name 
+        FROM categories c1 
+        LEFT JOIN categories c2 ON c1.parent_id = c2.id 
+        ORDER BY COALESCE(c2.name, c1.name), c1.name
+    `);
     const categories = result.rows as any[];
 
     return (
         <div className="max-w-4xl space-y-8">
             <h1 className="font-heading text-3xl font-bold">Categories</h1>
 
-            <AddCategoryForm />
+            <AddCategoryForm categories={categories} />
 
             {/* List */}
             <div className="bg-background border border-border rounded-sm overflow-hidden">
@@ -24,6 +29,7 @@ export default async function CategoriesPage() {
                             <th className="px-6 py-3">ID</th>
                             <th className="px-6 py-3">Image</th>
                             <th className="px-6 py-3">Name</th>
+                            <th className="px-6 py-3">Parent</th>
                             <th className="px-6 py-3">Slug</th>
                             <th className="px-6 py-3 text-right">Actions</th>
                         </tr>
@@ -44,6 +50,9 @@ export default async function CategoriesPage() {
                                     )}
                                 </td>
                                 <td className="px-6 py-4 font-bold">{cat.name}</td>
+                                <td className="px-6 py-4 text-muted-foreground">
+                                    {cat.parent_name || <span className="text-[10px] opacity-50">—</span>}
+                                </td>
                                 <td className="px-6 py-4 text-muted-foreground">{cat.slug}</td>
                                 <td className="px-6 py-4 text-right">
                                     <div className="flex items-center justify-end gap-2">

@@ -8,10 +8,14 @@ export async function addCategory(formData: FormData) {
     const name = formData.get("name") as string;
     const slug = name.toLowerCase().replace(/ /g, '-');
     const imageFile = formData.get("image") as File;
+    const parentId = formData.get("parent_id") ? parseInt(formData.get("parent_id") as string) : null;
     const imageUrl = await saveImage(imageFile);
 
     try {
-        await db.execute({ sql: 'INSERT INTO categories (name, slug, image_url) VALUES (?, ?, ?)', args: [name, slug, imageUrl] });
+        await db.execute({
+            sql: 'INSERT INTO categories (name, slug, image_url, parent_id) VALUES (?, ?, ?, ?)',
+            args: [name, slug, imageUrl, parentId]
+        });
         revalidatePath("/admin/categories");
         revalidatePath("/");
         revalidatePath("/shop");
@@ -27,6 +31,7 @@ export async function updateCategory(formData: FormData) {
     const name = formData.get("name") as string;
     const slug = name.toLowerCase().replace(/ /g, '-');
     const imageFile = formData.get("image") as File;
+    const parentId = formData.get("parent_id") ? parseInt(formData.get("parent_id") as string) : null;
 
     let imageUrl = null;
     if (imageFile && imageFile.size > 0) {
@@ -35,9 +40,15 @@ export async function updateCategory(formData: FormData) {
 
     try {
         if (imageUrl) {
-            await db.execute({ sql: 'UPDATE categories SET name = ?, slug = ?, image_url = ? WHERE id = ?', args: [name, slug, imageUrl, id as string] });
+            await db.execute({
+                sql: 'UPDATE categories SET name = ?, slug = ?, image_url = ?, parent_id = ? WHERE id = ?',
+                args: [name, slug, imageUrl, parentId, id as string]
+            });
         } else {
-            await db.execute({ sql: 'UPDATE categories SET name = ?, slug = ? WHERE id = ?', args: [name, slug, id as string] });
+            await db.execute({
+                sql: 'UPDATE categories SET name = ?, slug = ?, parent_id = ? WHERE id = ?',
+                args: [name, slug, parentId, id as string]
+            });
         }
         revalidatePath("/admin/categories");
         revalidatePath("/");

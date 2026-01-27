@@ -19,20 +19,35 @@ export default async function ShopPage({ searchParams }: { searchParams: { categ
     const selectedSort = searchParams.sort || 'newest';
 
     // Fetch Categories for Sidebar
-    const categoriesResult = await db.execute('SELECT id, name FROM categories ORDER BY name');
-    const categories = categoriesResult.rows as unknown as { id: number, name: string }[];
+    const categoriesResult = await db.execute('SELECT id, name, parent_id FROM categories ORDER BY name');
+    const allCategories = categoriesResult.rows as unknown as { id: number, name: string, parent_id: number | null }[];
+
+    // Build Category Tree
+    const parentCategories = allCategories.filter(c => !c.parent_id);
+    const subCategoriesMap: Record<number, typeof allCategories> = {};
+    allCategories.forEach(c => {
+        if (c.parent_id) {
+            if (!subCategoriesMap[c.parent_id]) subCategoriesMap[c.parent_id] = [];
+            subCategoriesMap[c.parent_id].push(c);
+        }
+    });
 
     // Build Product Query
     let query = `
-        SELECT p.*, c.name as category_name 
+        SELECT p.*, c.name as category_name, cp.name as parent_category_name
         FROM products p 
         LEFT JOIN categories c ON p.category_id = c.id 
+        LEFT JOIN categories cp ON c.parent_id = cp.id
     `;
     let params: any[] = [];
 
     if (selectedCategoryId) {
-        query += ` WHERE p.category_id = ? `;
-        params.push(selectedCategoryId);
+        // Find all subcategories for the selected category
+        const subCatIds = allCategories.filter(c => c.parent_id === parseInt(selectedCategoryId)).map(c => c.id);
+        const allTargetIds = [parseInt(selectedCategoryId), ...subCatIds];
+
+        query += ` WHERE p.category_id IN (${allTargetIds.map(() => '?').join(',')}) `;
+        params.push(...allTargetIds);
     }
 
     // Handle Sorting
@@ -62,14 +77,35 @@ export default async function ShopPage({ searchParams }: { searchParams: { categ
         { label: 'Name: A-Z', value: 'name-asc' },
     ];
 
+    // Get Selected Category Info
+    const selectedCategory = allCategories.find(c => String(c.id) === selectedCategoryId);
+    const parentOfSelected = selectedCategory?.parent_id ? allCategories.find(c => c.id === selectedCategory.parent_id) : null;
+
     return (
         <div className="container mx-auto px-4 py-8 sm:px-8 sm:py-16">
             {/* Header */}
-            <div className="mb-16 space-y-6 text-center max-w-3xl mx-auto">
-                <h1 className="font-heading text-5xl font-bold tracking-tight">The Collection</h1>
-                <p className="text-muted-foreground text-lg font-light leading-relaxed">
-                    Designed for comfort, engineered for wellness. Explore our exclusive range of premium furniture available for viewing in our augmented reality showroom.
-                </p>
+            <div className="mb-16 space-y-4 text-center max-w-3xl mx-auto">
+                {selectedCategory ? (
+                    <div className="space-y-2">
+                        <div className="flex items-center justify-center gap-2 text-[10px] uppercase font-bold tracking-[0.3em] text-muted-foreground">
+                            {parentOfSelected && (
+                                <>
+                                    <span>{parentOfSelected.name}</span>
+                                    <span>/</span>
+                                </>
+                            )}
+                            <span className="text-black">Collection</span>
+                        </div>
+                        <h1 className="font-heading text-5xl font-bold tracking-tight">{selectedCategory.name}</h1>
+                    </div>
+                ) : (
+                    <>
+                        <h1 className="font-heading text-5xl font-bold tracking-tight">The Collection</h1>
+                        <p className="text-muted-foreground text-lg font-light leading-relaxed">
+                            Designed for comfort, engineered for wellness. Explore our exclusive range of premium furniture available for viewing in our augmented reality showroom.
+                        </p>
+                    </>
+                )}
             </div>
 
             <div className="flex flex-col gap-12 lg:flex-row">
@@ -77,7 +113,7 @@ export default async function ShopPage({ searchParams }: { searchParams: { categ
                 <aside className="w-full lg:w-64 flex-none space-y-10">
                     <div>
                         <h3 className="font-sans text-xs font-bold uppercase tracking-widest mb-6 border-b pb-2">Category</h3>
-                        <ul className="space-y-3 text-sm">
+                        <ul className="space-y-4 text-sm">
                             <li>
                                 <Link
                                     href={selectedSort !== 'newest' ? `/shop?sort=${selectedSort}` : "/shop"}
@@ -86,14 +122,28 @@ export default async function ShopPage({ searchParams }: { searchParams: { categ
                                     All Products
                                 </Link>
                             </li>
-                            {categories.map(cat => (
-                                <li key={cat.id}>
+                            {parentCategories.map(parent => (
+                                <li key={parent.id} className="space-y-2">
                                     <Link
-                                        href={`/shop?category=${cat.id}${selectedSort !== 'newest' ? `&sort=${selectedSort}` : ''}`}
-                                        className={`transition-colors ${selectedCategoryId === String(cat.id) ? "text-foreground font-bold underline underline-offset-4" : "text-muted-foreground hover:text-foreground"}`}
+                                        href={`/shop?category=${parent.id}${selectedSort !== 'newest' ? `&sort=${selectedSort}` : ''}`}
+                                        className={`transition-colors ${selectedCategoryId === String(parent.id) ? "text-foreground font-bold underline underline-offset-4" : "text-muted-foreground hover:text-foreground"}`}
                                     >
-                                        {cat.name}
+                                        {parent.name}
                                     </Link>
+                                    {subCategoriesMap[parent.id] && (
+                                        <ul className="pl-4 space-y-2 border-l border-border/50 ml-1 mt-2">
+                                            {subCategoriesMap[parent.id].map(sub => (
+                                                <li key={sub.id}>
+                                                    <Link
+                                                        href={`/shop?category=${sub.id}${selectedSort !== 'newest' ? `&sort=${selectedSort}` : ''}`}
+                                                        className={`text-xs transition-colors ${selectedCategoryId === String(sub.id) ? "text-foreground font-bold underline underline-offset-2" : "text-muted-foreground hover:text-foreground"}`}
+                                                    >
+                                                        {sub.name}
+                                                    </Link>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
                                 </li>
                             ))}
                         </ul>

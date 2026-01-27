@@ -5,7 +5,7 @@ import { SubmitButton } from "@/components/admin/SubmitButton";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
-export default function EditCategoryForm({ category }: { category: any }) {
+export default function EditCategoryForm({ category, categories }: { category: any, categories: any[] }) {
     const router = useRouter();
 
     async function handleSubmit(formData: FormData) {
@@ -21,12 +21,23 @@ export default function EditCategoryForm({ category }: { category: any }) {
 
     return (
         <div className="bg-background border border-border p-6 rounded-sm">
-            <form action={handleSubmit} className="space-y-4">
+            <form action={handleSubmit} className="space-y-6">
                 <input type="hidden" name="id" value={category.id} />
                 <div className="space-y-2">
                     <label className="text-xs uppercase font-bold text-muted-foreground">Category Name</label>
                     <input name="name" defaultValue={category.name} required className="w-full bg-secondary border border-border px-4 py-2" />
                 </div>
+
+                <div className="space-y-2">
+                    <label className="text-xs uppercase font-bold text-muted-foreground">Parent Category</label>
+                    <select name="parent_id" defaultValue={category.parent_id || ""} className="w-full bg-secondary border border-border px-4 py-2 text-sm">
+                        <option value="">None (Top Level)</option>
+                        {categories.map(cat => (
+                            <option key={cat.id} value={cat.id}>{cat.name}</option>
+                        ))}
+                    </select>
+                </div>
+
                 <div className="space-y-4">
                     <label className="text-xs uppercase font-bold text-muted-foreground block">Category Image</label>
                     {category.image_url && (

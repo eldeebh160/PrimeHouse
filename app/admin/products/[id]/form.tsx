@@ -89,8 +89,10 @@ export default function EditProductForm({ product, initialVariants, categories, 
                     <label className="text-xs uppercase font-bold text-muted-foreground">Category</label>
                     <select name="category_id" defaultValue={product.category_id} className="w-full bg-secondary border border-border px-4 py-2">
                         <option value="">Select Category</option>
-                        {categories.map(cat => (
-                            <option key={cat.id} value={cat.id}>{cat.name}</option>
+                        {categories.map((cat: any) => (
+                            <option key={cat.id} value={cat.id}>
+                                {cat.parent_name ? `${cat.parent_name} > ${cat.name}` : cat.name}
+                            </option>
                         ))}
                     </select>
                 </div>

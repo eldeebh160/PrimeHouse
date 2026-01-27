@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS categories (
   name VARCHAR(255) NOT NULL,
   slug VARCHAR(255) UNIQUE NOT NULL,
   description TEXT,
+  parent_id INTEGER REFERENCES categories(id),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
